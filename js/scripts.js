@@ -1,4 +1,4 @@
-const HOST = "localhost";
+const HOST = "https://note-app-latest.onrender.com";
 const PORT = 8080;
 gettAllNotes();
 
@@ -17,7 +17,7 @@ function editName(name){
 }
 // opens the clicked note in the form to edit it
 async function openNote(id){
-    let response = await fetch(`http://${HOST}:${PORT}/api/notes/${id}`);
+    let response = await fetch(`${HOST}/api/notes/${id}`);
     let note = await response.json();   
     const saveButton = document.getElementById('saveButton');
     document.getElementsByTagName("main")[0].scrollIntoView({ behavior: "smooth" });
@@ -34,7 +34,7 @@ async function openNote(id){
 // Gets all the notes from the database
 async function gettAllNotes(){
     
-    let response = await fetch(`http://${HOST}:${PORT}/api/notes`);
+    let response = await fetch(`${HOST}/api/notes`);
     let notesList = await response.json();
 
     let buttonText = "";
@@ -68,7 +68,7 @@ async function gettAllNotes(){
 // Gets all the active notes from the database
 async function gettActiveNotes(){
     
-  let response = await fetch(`http://${HOST}:${PORT}/api/notes/active`);
+  let response = await fetch(`${HOST}/api/notes/active`);
   let notesList = await response.json();
   
   for(let note of notesList){
@@ -90,7 +90,7 @@ async function gettActiveNotes(){
 // Gets all the active notes from the database
 async function gettArchivedNotes(){
     
-  let response = await fetch(`http://${HOST}:${PORT}/api/notes/archived`);
+  let response = await fetch(`${HOST}/api/notes/archived`);
   let notesList = await response.json();
   
   for(let note of notesList){
@@ -128,8 +128,9 @@ async function reloadNotes(){
 
 // Creates a new Note using the form info
 async function createNote(event){
+  const noteName = document.getElementById("inputNoteName").value;
   let note = {
-    name: document.getElementById("inputNoteName").value,
+    name: noteName,
     text: document.getElementById("noteTextarea").value
 }
 
@@ -143,14 +144,13 @@ const options = {
 
   event.preventDefault();
 
-  const response = await fetch(`http://${HOST}:${PORT}/api/notes`, options);
+  const response = await fetch(`${HOST}/api/notes`, options);
   if(response.ok){
-    alert("Note \""+ note.name + "\" saved successfully");
-  }else {
-    alert("Something went wrong :(");
+    alert("Note " + noteName + " updated successfully");
+    reloadNotes();
+  } else if(response.status === 409) {
+    alert("Note with name " + noteName + " already exists");
   }
-
-  reloadNotes();
 }
 
 
@@ -166,7 +166,7 @@ async function deleteNote(id){
     method: 'DELETE'
   };
 
-  const response = await fetch(`http://${HOST}:${PORT}/api/notes/${id}`, options);
+  const response = await fetch(`${HOST}/api/notes/${id}`, options);
   if(response.ok){
     alert("Note \""+ id + "\" deleted successfully");
   }else {
@@ -195,14 +195,15 @@ async function updateNote(){
     body: JSON.stringify(note) 
   };
 
-  const response = await fetch(`http://${HOST}:${PORT}/api/notes/${noteId}`, options);
+  const response = await fetch(`${HOST}/api/notes/${noteId}`, options);
 
   if(response.ok){
     alert("Note " + noteName + " updated successfully");
-  } else {
-    alert(" Something went wrong :( " + response.status);
+    reloadNotes();
+  } else if(response.status === 409) {
+    alert("Note with name " + noteName + " already exists");
   }
-  reloadNotes();
+  
 
 }
 
@@ -299,7 +300,7 @@ async function activateNote(id){
     body: JSON.stringify(note) 
   };
 
-  const response = await fetch(`http://${HOST}:${PORT}/api/notes/${id}`, options);
+  const response = await fetch(`${HOST}/api/notes/${id}`, options);
   if(response.ok){
     alert("Note activated successfully");
   } else {
@@ -323,7 +324,7 @@ async function archiveNote(id){
     body: JSON.stringify(note) 
   };
 
-  const response = await fetch(`http://${HOST}:${PORT}/api/notes/${id}`, options);
+  const response = await fetch(`${HOST}/api/notes/${id}`, options);
 
   if(response.ok){
     alert("Note archived successfully ");
